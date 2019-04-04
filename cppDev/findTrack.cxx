@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <tuple>
 
 #include "TROOT.h"
 #include "TFile.h"
@@ -41,25 +42,27 @@ Double_t logLLHD_p3(Double_t sigmaSqX, Double_t x, Double_t muX, Double_t sigmaS
   return p3;
 }
 
-double findChosenX( Double_t inX, Int_t j) {
+std::tuple<Double_t, Double_t, Double_t, Double_t, Double_t, Double_t> findTrack( Double_t inX, Double_t inY, Double_t inZ, Double_t inMuTheta, Double_t inMuPhi, Double_t inMuLen, Int_t j) {
 
   // How many parameters are we looking at?
   Int_t numParams = 6;
-
+  
   // Input "requested" variables
+  /*
   Double_t inputX = 24.6;
   Double_t inputY = -47.8;
   Double_t inputZ = 816.9;
   Double_t inputTheta = 3.8;
   Double_t inputPhi = -62.8;
   Double_t inputLen = 4.8;
+  */
 
-  Double_t desiredSigmaX = 0.001;
-  Double_t desiredSigmaY = 100.0;
-  Double_t desiredSigmaZ = 100.0;
-  Double_t desiredSigmaTheta = 100.0;
-  Double_t desiredSigmaPhi = 100.0;
-  Double_t desiredSigmaLen = 100.0;
+  Double_t desiredSigmaX = 1.0;
+  Double_t desiredSigmaY = 1.0;
+  Double_t desiredSigmaZ = 1.0;
+  Double_t desiredSigmaTheta = 1.0;
+  Double_t desiredSigmaPhi = 1.0;
+  Double_t desiredSigmaLen = 1.0;
 
   Double_t desiredSigmaSqX = desiredSigmaX * desiredSigmaX;
   Double_t desiredSigmaSqY = desiredSigmaY * desiredSigmaY;
@@ -70,7 +73,7 @@ double findChosenX( Double_t inX, Int_t j) {
 
   TFile *f1 = new TFile("../data/FinalVertexVariables.root","READ");
 
-  f1->ls();
+  //  f1->ls();
   TTree *myTree = (TTree *)f1->Get("NuMuVertexVariables");
 
   // Create the variable(s) that are in the input TTree again
@@ -113,18 +116,22 @@ double findChosenX( Double_t inX, Int_t j) {
   
   int passCutCount = 0;
 
-  float x;
+  //  float x;
   // rest of vars not needed bc not filling a new ttree for now
 
-  TFile *outputTree = new TFile("outputTree.root","RECREATE");
-  TTree *_tree = new TTree("tree","Just a Tree");
-  _tree->Branch("x", &x, "x/F");
-  _tree->Branch("y", &x, "y/F");
+  //TFile *outputTree = new TFile("outputTree.root","RECREATE");
+  //TTree *_tree = new TTree("tree","Just a Tree");
+  //_tree->Branch("x", &x, "x/F");
+  //_tree->Branch("y", &x, "y/F");
   // rest of vars not needed bc not filling a new ttree for now
   
   Double_t smallestLLHD = 999.99e18;
   Double_t closestX = 9999.99;
-  Double_t correspondingY = 9999.99;
+  Double_t closestY = 9999.99;
+  Double_t closestZ = 9999.99;
+  Double_t closestMuTheta = 9999.99;
+  Double_t closestMuPhi = 9999.99;
+  Double_t closestMuLen = 9999.99;
   Int_t chosenRun = -999;
   Int_t chosenSubrun = -999;
   Int_t chosenEvent = -999;
@@ -151,9 +158,9 @@ double findChosenX( Double_t inX, Int_t j) {
       // Compute the negative log LLHD here
       Double_t LLHD_i = - ( logLLHD_p1( numParams ) 
 			    + logLLHD_p2( desiredSigmaSqX, desiredSigmaSqY, desiredSigmaSqZ, desiredSigmaSqTheta, desiredSigmaSqPhi, desiredSigmaSqLen ) 
-			    + logLLHD_p3( desiredSigmaSqX, _x, inX, desiredSigmaSqY, _y, inputY, 
-					  desiredSigmaSqZ, _z, inputZ, desiredSigmaSqTheta, Muon_ThetaReco, inputTheta,
-					  desiredSigmaSqPhi, Muon_PhiReco, inputPhi, desiredSigmaSqLen, Muon_TrackLength, inputLen) );
+			    + logLLHD_p3( desiredSigmaSqX, _x, inX, desiredSigmaSqY, _y, inY, 
+					  desiredSigmaSqZ, _z, inZ, desiredSigmaSqTheta, Muon_ThetaReco, inMuTheta,
+					  desiredSigmaSqPhi, Muon_PhiReco, inMuPhi, desiredSigmaSqLen, Muon_TrackLength, inMuLen) );
       //  cout << "LLHD_i = " << LLHD_i << endl;
     
       if (LLHD_i < smallestLLHD) {
@@ -161,7 +168,11 @@ double findChosenX( Double_t inX, Int_t j) {
 	//cout << "Current LLHD is the smallest found so far!" << endl;
 	smallestLLHD = LLHD_i;
 	closestX = _x;
-	correspondingY = _y;
+	closestY = _y;
+	closestZ = _z;
+	closestMuTheta = Muon_ThetaReco;
+	closestMuPhi = Muon_PhiReco;
+	closestMuLen = Muon_TrackLength;
 	chosenRun = _run;
 	chosenSubrun = _subrun;
 	chosenEvent = _event;
@@ -175,13 +186,17 @@ double findChosenX( Double_t inX, Int_t j) {
 
   //  cout << "This many events passed the cuts: " << passCutCount << endl;
   cout << "Minimizing the negative log LLHD, we found that the closest X is " << closestX << " with a LLHD value of " << smallestLLHD << "." << endl;
-  //cout << "CorrespondingY was: " << correspondingY << endl;
+  cout << "ClosestY: " << closestY << endl;
+  cout << "ClosestZ: " << closestZ << endl;
+  cout << "ClosestMuTheta: " << closestMuTheta << endl;
+  cout << "ClosestMuPhi: " << closestMuPhi << endl;
+  cout << "ClosestMuLen: " << closestMuLen << endl;
   //cout << "The input X was: " << inputX << endl;
   cout << "The associated track is: Run: " << chosenRun << " Subrun: " << chosenSubrun << " Event: " << chosenEvent << " Vtxid: " << chosenVtxid << endl;
 
-  outputTree->Write();
-  outputTree->Close();
+  //  outputTree->Write();
+  //outputTree->Close();
 
-  return closestX; 
+  return std::make_tuple( closestX, closestY, closestZ, closestMuTheta, closestMuPhi, closestMuLen ); 
 
 }
