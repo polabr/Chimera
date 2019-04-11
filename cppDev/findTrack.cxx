@@ -42,7 +42,7 @@ Double_t logLLHD_p3(Double_t sigmaSqX, Double_t x, Double_t muX, Double_t sigmaS
   return p3;
 }
 
-std::tuple<Double_t, Double_t, Double_t, Double_t, Double_t, Double_t> findTrack( Double_t inX, Double_t inY, Double_t inZ, Double_t inMuTheta, Double_t inMuPhi, Double_t inMuLen, Int_t j) {
+std::tuple<Double_t, Double_t, Double_t, Double_t, Double_t, Double_t> findTrack( Double_t inX, Double_t inY, Double_t inZ, Double_t inMuTheta, Double_t inMuPhi, Double_t inMuLen, Int_t j, TTree *myTree ) {
 
   // How many parameters are we looking at?
   Int_t numParams = 6;
@@ -60,8 +60,9 @@ std::tuple<Double_t, Double_t, Double_t, Double_t, Double_t, Double_t> findTrack
   Double_t desiredSigmaX = 1.0;
   Double_t desiredSigmaY = 1.0;
   Double_t desiredSigmaZ = 1.0;
-  Double_t desiredSigmaTheta = 1.0;
-  Double_t desiredSigmaPhi = 1.0;
+  Double_t desiredSigmaTheta = 0.01;
+  //  Double_t desiredSigmaPhi = TMath::Pi() / 10.0; 
+  Double_t desiredSigmaPhi = 0.01;
   Double_t desiredSigmaLen = 1.0;
 
   Double_t desiredSigmaSqX = desiredSigmaX * desiredSigmaX;
@@ -71,10 +72,10 @@ std::tuple<Double_t, Double_t, Double_t, Double_t, Double_t, Double_t> findTrack
   Double_t desiredSigmaSqPhi = desiredSigmaPhi * desiredSigmaPhi;
   Double_t desiredSigmaSqLen = desiredSigmaLen * desiredSigmaLen;
 
-  TFile *f1 = new TFile("../data/FinalVertexVariables.root","READ");
+  ///////////////////  TFile *f1 = new TFile("../data/FinalVertexVariables.root","READ");
 
   //  f1->ls();
-  TTree *myTree = (TTree *)f1->Get("NuMuVertexVariables");
+  ///////////////////  TTree *myTree = (TTree *)f1->Get("NuMuVertexVariables");
 
   // Create the variable(s) that are in the input TTree again
   int _run;
@@ -114,7 +115,7 @@ std::tuple<Double_t, Double_t, Double_t, Double_t, Double_t, Double_t> findTrack
 
   //------------------------------
   
-  int passCutCount = 0;
+  //int passCutCount = 0;
 
   //  float x;
   // rest of vars not needed bc not filling a new ttree for now
@@ -145,7 +146,7 @@ std::tuple<Double_t, Double_t, Double_t, Double_t, Double_t, Double_t> findTrack
     // Check if the entries pass the cuts before getting the x values
     if ( (_passCuts == 1) && (_cosmiLL > -3.0) && ( i != j ) ) {
 
-      passCutCount = passCutCount + 1; 
+      //      passCutCount = passCutCount + 1; 
       
       //cout << "The x value is: " << std::fixed << _x << endl; 
       //cout << "The y value is: " << std::fixed << _y << endl; 

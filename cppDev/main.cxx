@@ -20,8 +20,13 @@ int main() {
   // Also fill an X variable in the new tree with the FVV.root entries
   // Make a 1D scatter plot showing the correlation (plot all FinalVertexVariables X entries vs. closestX)
 
+  // This is the file we open for all input entries
   TFile *f1 = new TFile("../data/FinalVertexVariables.root","READ");
-  TTree *myTree = (TTree *)f1->Get("NuMuVertexVariables");
+  TTree *inputTree = (TTree *)f1->Get("NuMuVertexVariables");
+
+  // This is the file we open for entries to look through and compare
+  TFile *f2 = new TFile("../data/FinalVertexVariables.root","READ");
+  TTree *comparisonTree = (TTree *)f2->Get("NuMuVertexVariables");
 
   // Create variables that are in the input TTree again
   int _run;
@@ -37,20 +42,20 @@ int main() {
   int _passCuts;
   float _cosmiLL;
 
-  myTree->SetBranchAddress("run", &_run);
-  myTree->SetBranchAddress("subrun", &_subrun);
-  myTree->SetBranchAddress("event", &_event);
-  myTree->SetBranchAddress("vtxid", &_vtxid);
-  myTree->SetBranchAddress("Xreco", &_x);
-  myTree->SetBranchAddress("Yreco", &_y);
-  myTree->SetBranchAddress("Zreco", &_z);
-  myTree->SetBranchAddress("Muon_ThetaReco", &Muon_ThetaReco);
-  myTree->SetBranchAddress("Muon_PhiReco", &Muon_PhiReco);
-  myTree->SetBranchAddress("Muon_TrackLength", &Muon_TrackLength);
-  myTree->SetBranchAddress("PassCuts", &_passCuts);
-  myTree->SetBranchAddress("CosmicLL", &_cosmiLL);
+  inputTree->SetBranchAddress("run", &_run);
+  inputTree->SetBranchAddress("subrun", &_subrun);
+  inputTree->SetBranchAddress("event", &_event);
+  inputTree->SetBranchAddress("vtxid", &_vtxid);
+  inputTree->SetBranchAddress("Xreco", &_x);
+  inputTree->SetBranchAddress("Yreco", &_y);
+  inputTree->SetBranchAddress("Zreco", &_z);
+  inputTree->SetBranchAddress("Muon_ThetaReco", &Muon_ThetaReco);
+  inputTree->SetBranchAddress("Muon_PhiReco", &Muon_PhiReco);
+  inputTree->SetBranchAddress("Muon_TrackLength", &Muon_TrackLength);
+  inputTree->SetBranchAddress("PassCuts", &_passCuts);
+  inputTree->SetBranchAddress("CosmicLL", &_cosmiLL);
 
-  Int_t entries = myTree->GetEntries();
+  Int_t entries = inputTree->GetEntries();
 
   // Vars for new TTree to fill
   // Add run, subrun, event, vtxid?
@@ -70,7 +75,9 @@ int main() {
   float chosenMuPhi;
   float chosenMuLen;
   
-  TFile *outputTree = new TFile("comparisonTree_040319_all1Sigma.root","RECREATE");
+  float diffPhi;
+  
+  TFile *outputTree = new TFile("comparisonTree_040319_anglesAt001.root","RECREATE");
   TTree *_tree = new TTree("tree","Just a Tree");
   _tree->Branch("x", &x, "x/F");
   _tree->Branch("y", &y, "y/F");
@@ -84,13 +91,16 @@ int main() {
   _tree->Branch("chosenMuTheta", &chosenMuTheta, "chosenMuTheta/F");
   _tree->Branch("chosenMuPhi", &chosenMuPhi, "chosenMuPhi/F");
   _tree->Branch("chosenMuLen", &chosenMuLen, "chosenMuLen/F");
+  _tree->Branch("diffPhi", &diffPhi, "diffPhi/F");
 
-  for (Int_t j = 0; j < 10000; j++) {
+  for (Int_t j = 0; j < entries; j++) {
 
     // Make sure to get the jth entry
-    myTree->GetEntry(j);
+    inputTree->GetEntry(j);
 
     if ( (_passCuts == 1) && (_cosmiLL > -3.0) ) {
+
+      passCutCount = passCutCount + 1;
 
       x = _x;
       y = _y;
@@ -103,16 +113,20 @@ int main() {
       cout << "!!!!! This is the INPUT X value: " << _x << endl;
       cout << "The associated track is: Run: " << _run << " Subrun: " << _subrun << " Event: " << _event << " Vtxid: " << _vtxid << endl;
 
-      tie( chosenX, chosenY, chosenZ, chosenMuTheta, chosenMuPhi, chosenMuLen ) = findTrack( _x, _y, _z, Muon_ThetaReco, Muon_PhiReco, Muon_TrackLength, j );
+      tie( chosenX, chosenY, chosenZ, chosenMuTheta, chosenMuPhi, chosenMuLen ) = findTrack( _x, _y, _z, Muon_ThetaReco, Muon_PhiReco, Muon_TrackLength, j, comparisonTree);
 
       cout << "THIS IS WHAT THE CHOSENX WAS FOUND TO BE: " << chosenX << endl;
       cout << "THIS IS WHAT THE CHOSENY WAS FOUND TO BE: " << chosenY << endl;
+
+      diffPhi = (chosenMuPhi - muPhi);
 
       _tree->Fill();
 
     }
 
   }
+
+  cout << "This is how many events pass cuts: " << passCutCount << endl;
 
   outputTree->Write();
   outputTree->Close();   
