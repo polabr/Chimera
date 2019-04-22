@@ -1,5 +1,5 @@
-#ifndef FINDTRACK_H
-#define FINDTRACK_H
+#ifndef FINDMUON_H
+#define FINDMUON_H
 
 #include "TROOT.h"
 #include "TTree.h"

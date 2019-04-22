@@ -1,6 +1,6 @@
 #include <iostream>
 #include <tuple>
-#include "findTrack.h"
+#include "findMuon.h"
 
 
 #include "TROOT.h"
@@ -77,7 +77,7 @@ int main() {
   
   float diffPhi;
   
-  TFile *outputTree = new TFile("comparisonTree_040319_anglesAt001.root","RECREATE");
+  TFile *outputTree = new TFile("testy.root","RECREATE");
   TTree *_tree = new TTree("tree","Just a Tree");
   _tree->Branch("x", &x, "x/F");
   _tree->Branch("y", &y, "y/F");
@@ -93,7 +93,7 @@ int main() {
   _tree->Branch("chosenMuLen", &chosenMuLen, "chosenMuLen/F");
   _tree->Branch("diffPhi", &diffPhi, "diffPhi/F");
 
-  for (Int_t j = 0; j < entries; j++) {
+  for (Int_t j = 0; j < 500; j++) {
 
     // Make sure to get the jth entry
     inputTree->GetEntry(j);
