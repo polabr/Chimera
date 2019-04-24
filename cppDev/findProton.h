@@ -15,6 +15,6 @@ Double_t logLLHD_p3(Double_t sigmaSqX, Double_t x, Double_t pX, Double_t sigmaSq
 
 double findChosenX( Double_t inX, Double_t inY, Double_t inZ, Double_t inPTheta, Double_t inPPhi, Double_t inPLen, Int_t j);
 
-std::tuple<Double_t, Double_t, Double_t, Double_t, Double_t, Double_t> findTrack( Double_t inX, Double_t inY, Double_t inZ, Double_t inPTheta, Double_t inPPhi, Double_t inPLen, Int_t j, TTree *myTree);
+std::tuple<Int_t, Int_t, Int_t, Int_t, Double_t, Double_t, Double_t, Double_t, Double_t, Double_t> findTrack( Double_t inX, Double_t inY, Double_t inZ, Double_t inPTheta, Double_t inPPhi, Double_t inPLen, Int_t j, TTree *myTree);
 
 #endif

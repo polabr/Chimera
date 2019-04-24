@@ -1,4 +1,4 @@
-// Implementation of LLHD for multiple vars 
+// Find a proton using a LLHD with parameters X, Y, Z, theta, phi, track length 
 
 #include <iostream>
 #include <iomanip>
@@ -42,7 +42,7 @@ Double_t logLLHD_p3(Double_t sigmaSqX, Double_t x, Double_t pX, Double_t sigmaSq
   return p3;
 }
 
-std::tuple<Double_t, Double_t, Double_t, Double_t, Double_t, Double_t> findTrack( Double_t inX, Double_t inY, Double_t inZ, Double_t inPTheta, Double_t inPPhi, Double_t inPLen, Int_t j, TTree *myTree ) {
+std::tuple<Int_t, Int_t, Int_t, Int_t, Double_t, Double_t, Double_t, Double_t, Double_t, Double_t> findTrack( Double_t inX, Double_t inY, Double_t inZ, Double_t inPTheta, Double_t inPPhi, Double_t inPLen, Int_t j, TTree *myTree ) {
 
   // How many parameters are we looking at?
   Int_t numParams = 6;
@@ -127,16 +127,16 @@ std::tuple<Double_t, Double_t, Double_t, Double_t, Double_t, Double_t> findTrack
   // rest of vars not needed bc not filling a new ttree for now
   
   Double_t smallestLLHD = 999.99e18;
+  Int_t chosenRun = -999;
+  Int_t chosenSubrun = -999;
+  Int_t chosenEvent = -999;
+  Int_t chosenVtxid = -999;
   Double_t closestX = 9999.99;
   Double_t closestY = 9999.99;
   Double_t closestZ = 9999.99;
   Double_t closestPTheta = 9999.99;
   Double_t closestPPhi = 9999.99;
   Double_t closestPLen = 9999.99;
-  Int_t chosenRun = -999;
-  Int_t chosenSubrun = -999;
-  Int_t chosenEvent = -999;
-  Int_t chosenVtxid = -999;
 
   for (Int_t i = 0; i < entries; i++) { 
     
@@ -198,6 +198,6 @@ std::tuple<Double_t, Double_t, Double_t, Double_t, Double_t, Double_t> findTrack
   //  outputTree->Write();
   //outputTree->Close();
 
-  return std::make_tuple( closestX, closestY, closestZ, closestPTheta, closestPPhi, closestPLen ); 
+  return std::make_tuple( chosenRun, chosenSubrun, chosenEvent, chosenVtxid, closestX, closestY, closestZ, closestPTheta, closestPPhi, closestPLen ); 
 
 }
