@@ -11,21 +11,21 @@
 
 using namespace std;
 
-Double_t logLLHD_p1(Int_t n) {
+Double_t proton_logLLHD_p1(Int_t n) {
 
   Double_t p1 = -0.5 * n * TMath::Log( 2.0 * TMath::Pi() );  
 
   return p1;
 }
 
-Double_t logLLHD_p2(Double_t sigmaSqX, Double_t sigmaSqY, Double_t sigmaSqZ, Double_t sigmaSqTheta, Double_t sigmaSqPhi, Double_t sigmaSqLen) {
+Double_t proton_logLLHD_p2(Double_t sigmaSqX, Double_t sigmaSqY, Double_t sigmaSqZ, Double_t sigmaSqTheta, Double_t sigmaSqPhi, Double_t sigmaSqLen) {
 
   Double_t p2 = -0.5 * ( TMath::Log( sigmaSqX ) + TMath::Log( sigmaSqY ) + TMath::Log( sigmaSqZ ) + TMath::Log( sigmaSqTheta ) + TMath::Log( sigmaSqPhi ) + TMath::Log( sigmaSqLen )) ;
 
   return p2; 
 }
 
-Double_t logLLHD_p3(Double_t sigmaSqX, Double_t x, Double_t pX, Double_t sigmaSqY, Double_t y, Double_t pY, 
+Double_t proton_logLLHD_p3(Double_t sigmaSqX, Double_t x, Double_t pX, Double_t sigmaSqY, Double_t y, Double_t pY, 
 		    Double_t sigmaSqZ, Double_t z, Double_t pZ, Double_t sigmaSqTheta, Double_t theta, Double_t pTheta, 
 		    Double_t sigmaSqPhi, Double_t phi, Double_t pPhi, Double_t sigmaSqLen, Double_t len, Double_t pLen) {
 
@@ -42,7 +42,7 @@ Double_t logLLHD_p3(Double_t sigmaSqX, Double_t x, Double_t pX, Double_t sigmaSq
   return p3;
 }
 
-std::tuple<Int_t, Int_t, Int_t, Int_t, Double_t, Double_t, Double_t, Double_t, Double_t, Double_t> findTrack( Double_t inX, Double_t inY, Double_t inZ, Double_t inPTheta, Double_t inPPhi, Double_t inPLen, Int_t j, TTree *myTree ) {
+std::tuple<Int_t, Int_t, Int_t, Int_t, Int_t, Int_t, Double_t, Double_t, Double_t, Double_t, Double_t, Double_t> findProtonTrack( Double_t inX, Double_t inY, Double_t inZ, Double_t inPTheta, Double_t inPPhi, Double_t inPLen, Int_t j, TTree *myTree ) {
 
   // How many parameters are we looking at?
   Int_t numParams = 6;
@@ -82,6 +82,8 @@ std::tuple<Int_t, Int_t, Int_t, Int_t, Double_t, Double_t, Double_t, Double_t, D
   int _subrun; 
   int _event;
   int _vtxid;
+  int Muon_id;
+  int Proton_id;
   float _x;
   float _y;
   float _z;
@@ -96,6 +98,8 @@ std::tuple<Int_t, Int_t, Int_t, Int_t, Double_t, Double_t, Double_t, Double_t, D
   myTree->SetBranchAddress("subrun", &_subrun);
   myTree->SetBranchAddress("event", &_event);
   myTree->SetBranchAddress("vtxid", &_vtxid);
+  myTree->SetBranchAddress("Muon_id", &Muon_id);
+  myTree->SetBranchAddress("Proton_id", &Proton_id);
   myTree->SetBranchAddress("Xreco", &_x);
   myTree->SetBranchAddress("Yreco", &_y);
   myTree->SetBranchAddress("Zreco", &_z);
@@ -131,6 +135,8 @@ std::tuple<Int_t, Int_t, Int_t, Int_t, Double_t, Double_t, Double_t, Double_t, D
   Int_t chosenSubrun = -999;
   Int_t chosenEvent = -999;
   Int_t chosenVtxid = -999;
+  Int_t chosenMuID = -999;
+  Int_t chosenProtID = -999;
   Double_t closestX = 9999.99;
   Double_t closestY = 9999.99;
   Double_t closestZ = 9999.99;
@@ -157,9 +163,9 @@ std::tuple<Int_t, Int_t, Int_t, Int_t, Double_t, Double_t, Double_t, Double_t, D
       //      if ( ( _run == inRun ) && ( _subrun == inSubrun ) && ( _event == inEvent ) && ( inVtxid == _vtxid) ) continue;
 
       // Compute the negative log LLHD here
-      Double_t LLHD_i = - ( logLLHD_p1( numParams ) 
-			    + logLLHD_p2( desiredSigmaSqX, desiredSigmaSqY, desiredSigmaSqZ, desiredSigmaSqTheta, desiredSigmaSqPhi, desiredSigmaSqLen ) 
-			    + logLLHD_p3( desiredSigmaSqX, _x, inX, desiredSigmaSqY, _y, inY, 
+      Double_t LLHD_i = - ( proton_logLLHD_p1( numParams ) 
+			    + proton_logLLHD_p2( desiredSigmaSqX, desiredSigmaSqY, desiredSigmaSqZ, desiredSigmaSqTheta, desiredSigmaSqPhi, desiredSigmaSqLen ) 
+			    + proton_logLLHD_p3( desiredSigmaSqX, _x, inX, desiredSigmaSqY, _y, inY, 
 					  desiredSigmaSqZ, _z, inZ, desiredSigmaSqTheta, Proton_ThetaReco, inPTheta,
 					  desiredSigmaSqPhi, Proton_PhiReco, inPPhi, desiredSigmaSqLen, Proton_TrackLength, inPLen) );
       //  cout << "LLHD_i = " << LLHD_i << endl;
@@ -178,6 +184,8 @@ std::tuple<Int_t, Int_t, Int_t, Int_t, Double_t, Double_t, Double_t, Double_t, D
 	chosenSubrun = _subrun;
 	chosenEvent = _event;
 	chosenVtxid = _vtxid;
+	chosenMuID = Muon_id;
+	chosenProtID = Proton_id;
 	
       }
 
@@ -198,6 +206,6 @@ std::tuple<Int_t, Int_t, Int_t, Int_t, Double_t, Double_t, Double_t, Double_t, D
   //  outputTree->Write();
   //outputTree->Close();
 
-  return std::make_tuple( chosenRun, chosenSubrun, chosenEvent, chosenVtxid, closestX, closestY, closestZ, closestPTheta, closestPPhi, closestPLen ); 
+  return std::make_tuple( chosenRun, chosenSubrun, chosenEvent, chosenVtxid, chosenMuID, chosenProtID, closestX, closestY, closestZ, closestPTheta, closestPPhi, closestPLen ); 
 
 }

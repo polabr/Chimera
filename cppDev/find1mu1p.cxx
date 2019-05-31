@@ -2,7 +2,8 @@
 
 #include <iostream>
 #include <tuple>
-#include "findMuon.h" // *** also include findProton.h
+#include "findMuon.h" 
+#include "findProton.h"
 
 #include "TROOT.h"
 #include "TFile.h"
@@ -16,11 +17,11 @@ int main() {
   int passCutCount = 0;
 
   // This is the file we open for all input entries
-  TFile *f1 = new TFile("../data/FinalVertexVariables.root","READ");
+  TFile *f1 = new TFile("../data/FinalVertexVariables_likehood_aab.root","READ");
   TTree *inputTree = (TTree *)f1->Get("NuMuVertexVariables");
 
   // This is the file we open for entries to look through and compare
-  TFile *f2 = new TFile("../data/FinalVertexVariables.root","READ");
+  TFile *f2 = new TFile("../data/FinalVertexVariables_likehood_aab.root","READ");
   TTree *comparisonTree = (TTree *)f2->Get("NuMuVertexVariables");
 
   // Create variables that are in the input TTree again
@@ -28,6 +29,8 @@ int main() {
   int _subrun;
   int _event;
   int _vtxid;
+  int Muon_id;
+  int Proton_id;
   float _x;
   float _y;
   float _z;
@@ -44,6 +47,8 @@ int main() {
   inputTree->SetBranchAddress("subrun", &_subrun);
   inputTree->SetBranchAddress("event", &_event);
   inputTree->SetBranchAddress("vtxid", &_vtxid);
+  inputTree->SetBranchAddress("Muon_id", &Muon_id);
+  inputTree->SetBranchAddress("Proton_id", &Proton_id);
   inputTree->SetBranchAddress("Xreco", &_x);
   inputTree->SetBranchAddress("Yreco", &_y);
   inputTree->SetBranchAddress("Zreco", &_z);
@@ -65,6 +70,8 @@ int main() {
   int subrun;
   int event;
   int vtxid;
+  int muID;
+  int protID;
   float x;
   float y;
   float z;
@@ -80,16 +87,21 @@ int main() {
   int chosenMuSubrun;
   int chosenMuEvent;
   int chosenMuVtxid;
+  int chosenMuMuID;
+  int chosenMuProtID;
   float chosenMuX;
   float chosenMuY;
   float chosenMuZ;
   float chosenMuTheta;
   float chosenMuPhi;
   float chosenMuLen;
+
   int chosenPRun;
   int chosenPSubrun;
   int chosenPEvent;
   int chosenPVtxid;
+  int chosenPMuID;
+  int chosenPProtID;
   float chosenPX;
   float chosenPY;
   float chosenPZ;
@@ -97,12 +109,14 @@ int main() {
   float chosenPPhi;
   float chosenPLen;
   
-  TFile *outputTree = new TFile("test_april24_2019.root","RECREATE");
+  TFile *outputTree = new TFile("output_likelihood_aab.root","RECREATE");
   TTree *_tree = new TTree("tree","Just a Tree");
   _tree->Branch("run", &run, "run/I");
   _tree->Branch("subrun", &subrun, "subrun/I");
   _tree->Branch("event", &event, "event/I");
   _tree->Branch("vtxid", &vtxid, "vtxid/I");
+  _tree->Branch("muID", &muID, "muID/I");
+  _tree->Branch("protID", &protID, "protID/I");
   _tree->Branch("x", &x, "x/F");
   _tree->Branch("y", &y, "y/F");
   _tree->Branch("z", &z, "z/F");
@@ -116,6 +130,8 @@ int main() {
   _tree->Branch("chosenMuSubrun", &chosenMuSubrun, "chosenMuSubrun/I");
   _tree->Branch("chosenMuEvent", &chosenMuEvent, "chosenMuEvent/I");
   _tree->Branch("chosenMuVtxid", &chosenMuVtxid, "chosenMuVtxid/I");
+  _tree->Branch("chosenMuMuID", &chosenMuMuID, "chosenMuMuID/I");
+  _tree->Branch("chosenMuProtID", &chosenMuProtID, "chosenMuProtID/I");
   _tree->Branch("chosenMuX", &chosenMuX, "chosenMuX/F");
   _tree->Branch("chosenMuY", &chosenMuY, "chosenMuY/F");
   _tree->Branch("chosenMuZ", &chosenMuZ, "chosenMuZ/F");
@@ -126,6 +142,8 @@ int main() {
   _tree->Branch("chosenPSubrun", &chosenPSubrun, "chosenPSubrun/I");
   _tree->Branch("chosenPEvent", &chosenPEvent, "chosenPEvent/I");
   _tree->Branch("chosenPVtxid", &chosenPVtxid, "chosenPVtxid/I");
+  _tree->Branch("chosenPMuID", &chosenPMuID, "chosenPMuID/I");
+  _tree->Branch("chosenPProtID", &chosenPProtID, "chosenPProtID/I");
   _tree->Branch("chosenPX", &chosenPX, "chosenPX/F");
   _tree->Branch("chosenPY", &chosenPY, "chosenPY/F");
   _tree->Branch("chosenPZ", &chosenPZ, "chosenPZ/F");
@@ -147,6 +165,8 @@ int main() {
       subrun = _subrun;
       event = _event;
       vtxid = _vtxid;
+      muID = Muon_id;
+      protID = Proton_id;
       x = _x;
       y = _y;
       z = _z;
@@ -158,10 +178,10 @@ int main() {
       pLen = Proton_TrackLength;
 
       // Find values for muon
-      tie( chosenMuRun, chosenMuSubrun, chosenMuEvent, chosenMuVtxid, chosenMuX, chosenMuY, chosenMuZ, chosenMuTheta, chosenMuPhi, chosenMuLen ) = findTrack( _x, _y, _z, Muon_ThetaReco, Muon_PhiReco, Muon_TrackLength, j, comparisonTree);
+      tie( chosenMuRun, chosenMuSubrun, chosenMuEvent, chosenMuVtxid, chosenMuMuID, chosenMuProtID, chosenMuX, chosenMuY, chosenMuZ, chosenMuTheta, chosenMuPhi, chosenMuLen ) = findMuonTrack( _x, _y, _z, Muon_ThetaReco, Muon_PhiReco, Muon_TrackLength, j, comparisonTree);
 
       // Find values for proton
-      tie( chosenPRun, chosenPSubrun, chosenPEvent, chosenPVtxid, chosenPX, chosenPY, chosenPZ, chosenPTheta, chosenPPhi, chosenPLen ) = findTrack( _x, _y, _z, Proton_ThetaReco, Proton_PhiReco, Proton_TrackLength, j, comparisonTree);
+      tie( chosenPRun, chosenPSubrun, chosenPEvent, chosenPVtxid, chosenPMuID, chosenPProtID, chosenPX, chosenPY, chosenPZ, chosenPTheta, chosenPPhi, chosenPLen ) = findProtonTrack( _x, _y, _z, Proton_ThetaReco, Proton_PhiReco, Proton_TrackLength, j, comparisonTree);
 
       _tree->Fill();
 
