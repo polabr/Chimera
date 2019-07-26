@@ -194,6 +194,8 @@ std::tuple<Int_t, Int_t, Int_t, Int_t, Int_t, Int_t, Double_t, Double_t, Double_
   }
 
   //  cout << "This many events passed the cuts: " << passCutCount << endl;
+
+  /*
   cout << "Minimizing the negative log LLHD, we found that the closest X is " << closestX << " with a LLHD value of " << smallestLLHD << "." << endl;
   cout << "ClosestY: " << closestY << endl;
   cout << "ClosestZ: " << closestZ << endl;
@@ -202,7 +204,7 @@ std::tuple<Int_t, Int_t, Int_t, Int_t, Int_t, Int_t, Double_t, Double_t, Double_
   cout << "ClosestPLen: " << closestPLen << endl;
   //cout << "The input X was: " << inputX << endl;
   cout << "The associated track is: Run: " << chosenRun << " Subrun: " << chosenSubrun << " Event: " << chosenEvent << " Vtxid: " << chosenVtxid << endl;
-
+  */
   //  outputTree->Write();
   //outputTree->Close();
 

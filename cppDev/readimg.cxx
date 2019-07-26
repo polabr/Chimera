@@ -24,6 +24,7 @@ int main( int nargs, char** argv ) {
   gStyle->SetOptStat(0);
 
   std::string input_larcv  = argv[1]; // full file path of input larcv file 
+  std::string output_larcv  = argv[2]; // full file path of output larcv file 
   
   int run, subrun;
   ULong_t event;
@@ -43,8 +44,8 @@ int main( int nargs, char** argv ) {
   outlarlite.set_out_filename( output_larlite );
   outlarlite.open();
   */
-  std::string output_hist = "cooloutput_4thofjuly.root";
-  TFile* fout = new TFile( output_hist.c_str(), "recreate" ); // do not rewrite
+  //  std::string output_hist = "cooloutput_8thofjuly.root";
+  TFile* fout = new TFile( output_larcv.c_str(), "recreate" ); // do not rewrite
   TH2D* hadc_muon[3];
   TH2D* hadc_proton[3];
   TH2D* hadc_combined[3];

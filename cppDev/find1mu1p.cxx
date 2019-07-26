@@ -11,17 +11,21 @@
 
 using namespace std;
 
-int main() {
+int main( int nargs, char** argv ) {
+
+  std::string first_FVV_file  = argv[1];
+  std::string second_FVV_file  = argv[2];
+  std::string output_llhd_file  = argv[3];
 
   //  Int_t numParams = 6; // 6 params each, for muon and proton separately
   int passCutCount = 0;
 
   // This is the file we open for all input entries
-  TFile *f1 = new TFile("../data/FinalVertexVariables_likehood_aab.root","READ");
+  TFile *f1 = new TFile(first_FVV_file.c_str(),"READ");
   TTree *inputTree = (TTree *)f1->Get("NuMuVertexVariables");
 
   // This is the file we open for entries to look through and compare
-  TFile *f2 = new TFile("../data/FinalVertexVariables_likehood_aab.root","READ");
+  TFile *f2 = new TFile(second_FVV_file.c_str(),"READ");
   TTree *comparisonTree = (TTree *)f2->Get("NuMuVertexVariables");
 
   // Create variables that are in the input TTree again
@@ -62,6 +66,8 @@ int main() {
   inputTree->SetBranchAddress("CosmicLL", &_cosmiLL);
 
   Int_t entries = inputTree->GetEntries();
+
+  std::cout << "There are this many entries: " << entries << std::endl;
 
   // Vars for new TTree to fill
   
@@ -109,7 +115,7 @@ int main() {
   float chosenPPhi;
   float chosenPLen;
   
-  TFile *outputTree = new TFile("output_likelihood_aab.root","RECREATE");
+  TFile *outputTree = new TFile(output_llhd_file.c_str(),"RECREATE");
   TTree *_tree = new TTree("tree","Just a Tree");
   _tree->Branch("run", &run, "run/I");
   _tree->Branch("subrun", &subrun, "subrun/I");
@@ -151,7 +157,7 @@ int main() {
   _tree->Branch("chosenPPhi", &chosenPPhi, "chosenPPhi/F");
   _tree->Branch("chosenPLen", &chosenPLen, "chosenPLen/F");
 
-  for (Int_t j = 0; j < 100; j++) {
+  for (Int_t j = 0; j < entries; j++) {
 
     // Make sure to get the jth entry
     inputTree->GetEntry(j);
