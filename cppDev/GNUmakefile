@@ -1,4 +1,5 @@
-CC=clang++
+#CC=clang++
+CC=g++
 
 INCLUDES=`root-config --cflags`
 INCLUDES+=`larlite-config --includes`
