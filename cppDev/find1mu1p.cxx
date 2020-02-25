@@ -19,51 +19,54 @@ int main( int nargs, char** argv ) {
 
   //  Int_t numParams = 6; // 6 params each, for muon and proton separately
   int passCutCount = 0;
-
+  
   // This is the file we open for all input entries
   TFile *f1 = new TFile(first_FVV_file.c_str(),"READ");
-  TTree *inputTree = (TTree *)f1->Get("NuMuVertexVariables");
-
+  TTree *inputTree = (TTree *)f1->Get("FinalVertexVariables");
+  
   // This is the file we open for entries to look through and compare
   TFile *f2 = new TFile(second_FVV_file.c_str(),"READ");
-  TTree *comparisonTree = (TTree *)f2->Get("NuMuVertexVariables");
+  TTree *comparisonTree = (TTree *)f2->Get("FinalVertexVariables");
 
   // Create variables that are in the input TTree again
-  int _run;
-  int _subrun;
-  int _event;
-  int _vtxid;
-  int Muon_id;
-  int Proton_id;
-  float _x;
-  float _y;
-  float _z;
-  float Muon_ThetaReco;
-  float Muon_PhiReco;
-  float Muon_TrackLength;
+  int run;
+  int subrun;
+  int event;
+  int vtxid;
+  int Lepton_ID;
+  float Proton_ID;
+  float Xreco;
+  float Yreco;
+  float Zreco;
+  float Lepton_ThetaReco;
+  float Lepton_PhiReco;
+  float Lepton_TrackLength;
   float Proton_ThetaReco;
   float Proton_PhiReco;
   float Proton_TrackLength;
-  int _passCuts;
-  float _cosmiLL;
+  int PassSimpleCuts;
+  //  float _cosmiLL; // BDT score, would get by training the BDT
 
-  inputTree->SetBranchAddress("run", &_run);
-  inputTree->SetBranchAddress("subrun", &_subrun);
-  inputTree->SetBranchAddress("event", &_event);
-  inputTree->SetBranchAddress("vtxid", &_vtxid);
-  inputTree->SetBranchAddress("Muon_id", &Muon_id);
-  inputTree->SetBranchAddress("Proton_id", &Proton_id);
-  inputTree->SetBranchAddress("Xreco", &_x);
-  inputTree->SetBranchAddress("Yreco", &_y);
-  inputTree->SetBranchAddress("Zreco", &_z);
-  inputTree->SetBranchAddress("Muon_ThetaReco", &Muon_ThetaReco);
-  inputTree->SetBranchAddress("Muon_PhiReco", &Muon_PhiReco);
-  inputTree->SetBranchAddress("Muon_TrackLength", &Muon_TrackLength);
+  inputTree->SetBranchAddress("run", &run);
+
+  std::cout << "set first branch address" << std::endl;
+
+  inputTree->SetBranchAddress("subrun", &subrun);
+  inputTree->SetBranchAddress("event", &event);
+  inputTree->SetBranchAddress("vtxid", &vtxid);
+  inputTree->SetBranchAddress("Lepton_ID", &Lepton_ID);
+  inputTree->SetBranchAddress("Proton_ID", &Proton_ID);
+  inputTree->SetBranchAddress("Xreco", &Xreco);
+  inputTree->SetBranchAddress("Yreco", &Yreco);
+  inputTree->SetBranchAddress("Zreco", &Zreco);
+  inputTree->SetBranchAddress("Lepton_ThetaReco", &Lepton_ThetaReco);
+  inputTree->SetBranchAddress("Lepton_PhiReco", &Lepton_PhiReco);
+  inputTree->SetBranchAddress("Lepton_TrackLength", &Lepton_TrackLength);
   inputTree->SetBranchAddress("Proton_ThetaReco", &Proton_ThetaReco);
   inputTree->SetBranchAddress("Proton_PhiReco", &Proton_PhiReco);
   inputTree->SetBranchAddress("Proton_TrackLength", &Proton_TrackLength);
-  inputTree->SetBranchAddress("PassCuts", &_passCuts);
-  inputTree->SetBranchAddress("CosmicLL", &_cosmiLL);
+  inputTree->SetBranchAddress("PassSimpleCuts", &PassSimpleCuts);
+  //  inputTree->SetBranchAddress("CosmicLL", &_cosmiLL);
 
   Int_t entries = inputTree->GetEntries();
 
@@ -72,10 +75,10 @@ int main( int nargs, char** argv ) {
   // Vars for new TTree to fill
   
   // Input ("Truth")
-  int run;
-  int subrun;
-  int event;
-  int vtxid;
+  int _run;
+  int _subrun;
+  int _event;
+  int _vtxid;
   int muID;
   int protID;
   float x;
@@ -117,12 +120,12 @@ int main( int nargs, char** argv ) {
   
   TFile *outputTree = new TFile(output_llhd_file.c_str(),"RECREATE");
   TTree *_tree = new TTree("tree","Just a Tree");
-  _tree->Branch("run", &run, "run/I");
-  _tree->Branch("subrun", &subrun, "subrun/I");
-  _tree->Branch("event", &event, "event/I");
-  _tree->Branch("vtxid", &vtxid, "vtxid/I");
+  _tree->Branch("_run", &_run, "_run/I");
+  _tree->Branch("_subrun", &_subrun, "_subrun/I");
+  _tree->Branch("_event", &_event, "_event/I");
+  _tree->Branch("_vtxid", &_vtxid, "_vtxid/I");
   _tree->Branch("muID", &muID, "muID/I");
-  _tree->Branch("protID", &protID, "protID/I");
+  _tree->Branch("protID", &protID, "protID/F");
   _tree->Branch("x", &x, "x/F");
   _tree->Branch("y", &y, "y/F");
   _tree->Branch("z", &z, "z/F");
@@ -137,7 +140,7 @@ int main( int nargs, char** argv ) {
   _tree->Branch("chosenMuEvent", &chosenMuEvent, "chosenMuEvent/I");
   _tree->Branch("chosenMuVtxid", &chosenMuVtxid, "chosenMuVtxid/I");
   _tree->Branch("chosenMuMuID", &chosenMuMuID, "chosenMuMuID/I");
-  _tree->Branch("chosenMuProtID", &chosenMuProtID, "chosenMuProtID/I");
+  _tree->Branch("chosenMuProtID", &chosenMuProtID, "chosenMuProtID/F");
   _tree->Branch("chosenMuX", &chosenMuX, "chosenMuX/F");
   _tree->Branch("chosenMuY", &chosenMuY, "chosenMuY/F");
   _tree->Branch("chosenMuZ", &chosenMuZ, "chosenMuZ/F");
@@ -149,7 +152,7 @@ int main( int nargs, char** argv ) {
   _tree->Branch("chosenPEvent", &chosenPEvent, "chosenPEvent/I");
   _tree->Branch("chosenPVtxid", &chosenPVtxid, "chosenPVtxid/I");
   _tree->Branch("chosenPMuID", &chosenPMuID, "chosenPMuID/I");
-  _tree->Branch("chosenPProtID", &chosenPProtID, "chosenPProtID/I");
+  _tree->Branch("chosenPProtID", &chosenPProtID, "chosenPProtID/F");
   _tree->Branch("chosenPX", &chosenPX, "chosenPX/F");
   _tree->Branch("chosenPY", &chosenPY, "chosenPY/F");
   _tree->Branch("chosenPZ", &chosenPZ, "chosenPZ/F");
@@ -162,32 +165,33 @@ int main( int nargs, char** argv ) {
     // Make sure to get the jth entry
     inputTree->GetEntry(j);
 
-    if ( (_passCuts == 1) && (_cosmiLL > -3.0) ) {
+    //    if ( (PassSimpleCuts == 1) && (_cosmiLL > -3.0) ) {
+    if (PassSimpleCuts == 1) {
 
       passCutCount = passCutCount + 1;
 
       // Set all the "truth" values from the real event
-      run = _run;
-      subrun = _subrun;
-      event = _event;
-      vtxid = _vtxid;
-      muID = Muon_id;
-      protID = Proton_id;
-      x = _x;
-      y = _y;
-      z = _z;
-      muTheta = Muon_ThetaReco;
-      muPhi = Muon_PhiReco;
-      muLen = Muon_TrackLength;
+      _run = run;
+      _subrun = subrun;
+      _event = event;
+      _vtxid = vtxid;
+      muID = Lepton_ID;
+      protID = Proton_ID;
+      x = Xreco;
+      y = Yreco;
+      z = Zreco;
+      muTheta = Lepton_ThetaReco;
+      muPhi = Lepton_PhiReco;
+      muLen = Lepton_TrackLength;
       pTheta = Proton_ThetaReco;
       pPhi = Proton_PhiReco;
       pLen = Proton_TrackLength;
 
       // Find values for muon
-      tie( chosenMuRun, chosenMuSubrun, chosenMuEvent, chosenMuVtxid, chosenMuMuID, chosenMuProtID, chosenMuX, chosenMuY, chosenMuZ, chosenMuTheta, chosenMuPhi, chosenMuLen ) = findMuonTrack( _x, _y, _z, Muon_ThetaReco, Muon_PhiReco, Muon_TrackLength, j, comparisonTree);
+      tie( chosenMuRun, chosenMuSubrun, chosenMuEvent, chosenMuVtxid, chosenMuMuID, chosenMuProtID, chosenMuX, chosenMuY, chosenMuZ, chosenMuTheta, chosenMuPhi, chosenMuLen ) = findMuonTrack( Xreco, Yreco, Zreco, Lepton_ThetaReco, Lepton_PhiReco, Lepton_TrackLength, j, comparisonTree);
 
       // Find values for proton
-      tie( chosenPRun, chosenPSubrun, chosenPEvent, chosenPVtxid, chosenPMuID, chosenPProtID, chosenPX, chosenPY, chosenPZ, chosenPTheta, chosenPPhi, chosenPLen ) = findProtonTrack( _x, _y, _z, Proton_ThetaReco, Proton_PhiReco, Proton_TrackLength, j, comparisonTree);
+      tie( chosenPRun, chosenPSubrun, chosenPEvent, chosenPVtxid, chosenPMuID, chosenPProtID, chosenPX, chosenPY, chosenPZ, chosenPTheta, chosenPPhi, chosenPLen ) = findProtonTrack( Xreco, Yreco, Zreco, Proton_ThetaReco, Proton_PhiReco, Proton_TrackLength, j, comparisonTree);
 
       _tree->Fill();
 
