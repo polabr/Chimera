@@ -78,36 +78,36 @@ std::tuple<Int_t, Int_t, Int_t, Int_t, Int_t, Int_t,  Double_t, Double_t, Double
   ///////////////////  TTree *myTree = (TTree *)f1->Get("NuMuVertexVariables");
 
   // Create the variable(s) that are in the input TTree again
-  int _run;
-  int _subrun; 
-  int _event;
-  int _vtxid;
-  int Muon_id;
-  int Proton_id;
-  float _x;
-  float _y;
-  float _z;
-  float Muon_ThetaReco; 
-  float Muon_PhiReco; 
-  float Muon_TrackLength; 
+  int run;
+  int subrun; 
+  int event;
+  int vtxid;
+  int Lepton_ID;
+  float Proton_ID;
+  float Xreco;
+  float Yreco;
+  float Zreco;
+  float Lepton_ThetaReco; 
+  float Lepton_PhiReco; 
+  float Lepton_TrackLength; 
 
-  int _passCuts;
-  float _cosmiLL;
+  int PassSimpleCuts;
+  //  float _cosmiLL;
   
-  myTree->SetBranchAddress("run", &_run);
-  myTree->SetBranchAddress("subrun", &_subrun);
-  myTree->SetBranchAddress("event", &_event);
-  myTree->SetBranchAddress("vtxid", &_vtxid);
-  myTree->SetBranchAddress("Muon_id", &Muon_id);
-  myTree->SetBranchAddress("Proton_id", &Proton_id);
-  myTree->SetBranchAddress("Xreco", &_x);
-  myTree->SetBranchAddress("Yreco", &_y);
-  myTree->SetBranchAddress("Zreco", &_z);
-  myTree->SetBranchAddress("Muon_ThetaReco", &Muon_ThetaReco);
-  myTree->SetBranchAddress("Muon_PhiReco", &Muon_PhiReco);
-  myTree->SetBranchAddress("Muon_TrackLength", &Muon_TrackLength);
-  myTree->SetBranchAddress("PassCuts", &_passCuts);
-  myTree->SetBranchAddress("CosmicLL", &_cosmiLL);
+  myTree->SetBranchAddress("run", &run);
+  myTree->SetBranchAddress("subrun", &subrun);
+  myTree->SetBranchAddress("event", &event);
+  myTree->SetBranchAddress("vtxid", &vtxid);
+  myTree->SetBranchAddress("Lepton_ID", &Lepton_ID);
+  myTree->SetBranchAddress("Proton_ID", &Proton_ID);
+  myTree->SetBranchAddress("Xreco", &Xreco);
+  myTree->SetBranchAddress("Yreco", &Yreco);
+  myTree->SetBranchAddress("Zreco", &Zreco);
+  myTree->SetBranchAddress("Lepton_ThetaReco", &Lepton_ThetaReco);
+  myTree->SetBranchAddress("Lepton_PhiReco", &Lepton_PhiReco);
+  myTree->SetBranchAddress("Lepton_TrackLength", &Lepton_TrackLength);
+  myTree->SetBranchAddress("PassSimpleCuts", &PassSimpleCuts);
+  //  myTree->SetBranchAddress("CosmicLL", &_cosmiLL);
 
   Int_t entries = myTree->GetEntries();
 
@@ -150,42 +150,43 @@ std::tuple<Int_t, Int_t, Int_t, Int_t, Int_t, Int_t,  Double_t, Double_t, Double
     myTree->GetEntry(i);
 
     // Check if the entries pass the cuts before getting the x values
-    if ( (_passCuts == 1) && (_cosmiLL > -3.0) && ( i != j ) ) {
+    //    if ( (PassSimpleCuts == 1) && (_cosmiLL > -3.0) && ( i != j ) ) {
+    if ( (PassSimpleCuts == 1) && ( i != j ) ) {
 
       //      passCutCount = passCutCount + 1; 
       
-      //cout << "The x value is: " << std::fixed << _x << endl; 
-      //cout << "The y value is: " << std::fixed << _y << endl; 
+      //cout << "The x value is: " << std::fixed << Xreco << endl; 
+      //cout << "The y value is: " << std::fixed << Yreco << endl; 
       //cout << "inputY: " << inputY << endl; 
       //cout << "inputY: " << inputY << endl; 
-      //cout << "The associated track is: Run: " << _run << " Subrun: " << _subrun << " Event: " << _event << " Vtxid: " << _vtxid << endl; 
+      //cout << "The associated track is: Run: " << run << " Subrun: " << subrun << " Event: " << event << " Vtxid: " << vtxid << endl; 
 
-      //      if ( ( _run == inRun ) && ( _subrun == inSubrun ) && ( _event == inEvent ) && ( inVtxid == _vtxid) ) continue;
+      //      if ( ( run == inRun ) && ( subrun == inSubrun ) && ( event == inEvent ) && ( inVtxid == vtxid) ) continue;
 
       // Compute the negative log LLHD here
       Double_t LLHD_i = - ( muon_logLLHD_p1( numParams ) 
 			    + muon_logLLHD_p2( desiredSigmaSqX, desiredSigmaSqY, desiredSigmaSqZ, desiredSigmaSqTheta, desiredSigmaSqPhi, desiredSigmaSqLen ) 
-			    + muon_logLLHD_p3( desiredSigmaSqX, _x, inX, desiredSigmaSqY, _y, inY, 
-					  desiredSigmaSqZ, _z, inZ, desiredSigmaSqTheta, Muon_ThetaReco, inMuTheta,
-					  desiredSigmaSqPhi, Muon_PhiReco, inMuPhi, desiredSigmaSqLen, Muon_TrackLength, inMuLen) );
+			    + muon_logLLHD_p3( desiredSigmaSqX, Xreco, inX, desiredSigmaSqY, Yreco, inY, 
+					  desiredSigmaSqZ, Zreco, inZ, desiredSigmaSqTheta, Lepton_ThetaReco, inMuTheta,
+					  desiredSigmaSqPhi, Lepton_PhiReco, inMuPhi, desiredSigmaSqLen, Lepton_TrackLength, inMuLen) );
       //  cout << "LLHD_i = " << LLHD_i << endl;
     
       if (LLHD_i < smallestLLHD) {
 
 	//cout << "Current LLHD is the smallest found so far!" << endl;
 	smallestLLHD = LLHD_i;
-	closestX = _x;
-	closestY = _y;
-	closestZ = _z;
-	closestMuTheta = Muon_ThetaReco;
-	closestMuPhi = Muon_PhiReco;
-	closestMuLen = Muon_TrackLength;
-	chosenRun = _run;
-	chosenSubrun = _subrun;
-	chosenEvent = _event;
-	chosenVtxid = _vtxid;
-	chosenMuID = Muon_id;
-	chosenProtID = Proton_id;
+	closestX = Xreco;
+	closestY = Yreco;
+	closestZ = Zreco;
+	closestMuTheta = Lepton_ThetaReco;
+	closestMuPhi = Lepton_PhiReco;
+	closestMuLen = Lepton_TrackLength;
+	chosenRun = run;
+	chosenSubrun = subrun;
+	chosenEvent = event;
+	chosenVtxid = vtxid;
+	chosenMuID = Lepton_ID;
+	chosenProtID = Proton_ID;
 	
       }
 
