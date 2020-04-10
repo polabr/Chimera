@@ -92,6 +92,7 @@ std::tuple<Int_t, Int_t, Int_t, Int_t, Int_t, Int_t,  Double_t, Double_t, Double
   float Lepton_TrackLength; 
 
   int PassSimpleCuts;
+  int Good3DReco;
   //  float _cosmiLL;
   
   myTree->SetBranchAddress("run", &run);
@@ -107,6 +108,7 @@ std::tuple<Int_t, Int_t, Int_t, Int_t, Int_t, Int_t,  Double_t, Double_t, Double
   myTree->SetBranchAddress("Lepton_PhiReco", &Lepton_PhiReco);
   myTree->SetBranchAddress("Lepton_TrackLength", &Lepton_TrackLength);
   myTree->SetBranchAddress("PassSimpleCuts", &PassSimpleCuts);
+  myTree->SetBranchAddress("Good3DReco", &Good3DReco);
   //  myTree->SetBranchAddress("CosmicLL", &_cosmiLL);
 
   Int_t entries = myTree->GetEntries();
@@ -151,7 +153,7 @@ std::tuple<Int_t, Int_t, Int_t, Int_t, Int_t, Int_t,  Double_t, Double_t, Double
 
     // Check if the entries pass the cuts before getting the x values
     //    if ( (PassSimpleCuts == 1) && (_cosmiLL > -3.0) && ( i != j ) ) {
-    if ( (PassSimpleCuts == 1) && ( i != j ) ) {
+    if ( (PassSimpleCuts == 1) && (Good3DReco == 1) && ( i != j ) ) {
 
       //      passCutCount = passCutCount + 1; 
       

@@ -44,8 +44,9 @@ int main( int nargs, char** argv ) {
   float Proton_ThetaReco;
   float Proton_PhiReco;
   float Proton_TrackLength;
-  int PassSimpleCuts;
-  //  float _cosmiLL; // BDT score, would get by training the BDT
+  int PassSimpleCuts; // containment, 2 prong
+  int Good3DReco;
+  //  float _cosmiLL;
 
   inputTree->SetBranchAddress("run", &run);
 
@@ -66,6 +67,7 @@ int main( int nargs, char** argv ) {
   inputTree->SetBranchAddress("Proton_PhiReco", &Proton_PhiReco);
   inputTree->SetBranchAddress("Proton_TrackLength", &Proton_TrackLength);
   inputTree->SetBranchAddress("PassSimpleCuts", &PassSimpleCuts);
+  inputTree->SetBranchAddress("Good3DReco", &Good3DReco);
   //  inputTree->SetBranchAddress("CosmicLL", &_cosmiLL);
 
   Int_t entries = inputTree->GetEntries();
@@ -166,7 +168,7 @@ int main( int nargs, char** argv ) {
     inputTree->GetEntry(j);
 
     //    if ( (PassSimpleCuts == 1) && (_cosmiLL > -3.0) ) {
-    if (PassSimpleCuts == 1) {
+    if ((PassSimpleCuts == 1) && (Good3DReco == 1)){
 
       passCutCount = passCutCount + 1;
 
