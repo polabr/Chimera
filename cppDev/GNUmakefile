@@ -16,4 +16,4 @@ find1mu1p: find1mu1p.cxx findMuon.cxx findProton.cxx
 	$(CC) -Wall -o find1mu1p find1mu1p.cxx findMuon.cxx findProton.cxx $(INCLUDES) $(LIBS)
 
 put2TracksTogether: put2TracksTogether.cxx
-	$(CC) -Wall -o put2TracksTogether put2TracksTogether.cxx $(INCLUDES) $(LIBS)
+	$(CC) -Wall -o put2TracksTogether put2TracksTogether.cxx -g $(INCLUDES) $(LIBS)

@@ -9,8 +9,8 @@
 #include "TROOT.h"
 #include "TFile.h"
 #include "TTree.h"
-#include "/Users/nduser/dllee_unified/LArCV/core/DataFormat/IOManager.h"
-#include "/Users/nduser/dllee_unified/LArCV/core/DataFormat/EventImage2D.h"
+#include "../../dllee_unified/LArCV/core/DataFormat/IOManager.h"
+#include "../../dllee_unified/LArCV/core/DataFormat/EventImage2D.h"
 
 using namespace std;
 
@@ -32,14 +32,14 @@ int main( int nargs, char** argv) {
   int _chosenMuEvent;
   int _chosenMuVtxid;
   int _chosenMuMuID;
-  int _chosenMuProtID;
+  float _chosenMuProtID;
 
   int _chosenPRun;
   int _chosenPSubrun;
   int _chosenPEvent;
   int _chosenPVtxid;
   int _chosenPMuID;
-  int _chosenPProtID;
+  float _chosenPProtID;
 
   llhdOutputTree->SetBranchAddress("chosenMuRun", &_chosenMuRun);
   llhdOutputTree->SetBranchAddress("chosenMuSubrun", &_chosenMuSubrun);
@@ -88,7 +88,7 @@ int main( int nargs, char** argv) {
   larcv::IOManager* ioman = new larcv::IOManager(larcv::IOManager::kREAD);
   ioman->add_in_file(input_image2d_file.c_str());
   ioman->initialize();
-
+  
   // This will be the output chimera image2d
   larcv::IOManager* out_iom = new larcv::IOManager(larcv::IOManager::kWRITE);
   out_iom->set_out_file(output_chimera_file.c_str());
@@ -99,7 +99,7 @@ int main( int nargs, char** argv) {
   int trkrSubrun;
   int trkrEvent;
   std::vector<double> temp;
-  std::vector<std::vector<double>> *vtxVector;
+  std::vector<std::vector<double>> *vtxVector = 0;
 
   TFile *trackerVtx = new TFile(output_vtx_file.c_str(),"RECREATE");
   TTree *trackerTree = new TTree("tree","vtxTree");
@@ -121,9 +121,9 @@ int main( int nargs, char** argv) {
   for (Int_t i = 0; i < llhdEntries; i++) {
 
     vtxVector->clear();
-    
+
     llhdOutputTree->GetEntry(i);
-    
+
     std::vector<larcv::Image2D> out_img_muon(3);
     std::vector<larcv::Image2D> out_img_proton(3);
     std::vector<larcv::Image2D> out_img_combined(3);
