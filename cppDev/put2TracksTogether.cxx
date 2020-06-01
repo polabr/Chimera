@@ -32,14 +32,14 @@ int main( int nargs, char** argv) {
   int _chosenMuEvent;
   int _chosenMuVtxid;
   int _chosenMuMuID;
-  float _chosenMuProtID;
+  int _chosenMuProtID;
 
   int _chosenPRun;
   int _chosenPSubrun;
   int _chosenPEvent;
   int _chosenPVtxid;
   int _chosenPMuID;
-  float _chosenPProtID;
+  int _chosenPProtID;
 
   llhdOutputTree->SetBranchAddress("chosenMuRun", &_chosenMuRun);
   llhdOutputTree->SetBranchAddress("chosenMuSubrun", &_chosenMuSubrun);
@@ -182,6 +182,13 @@ int main( int nargs, char** argv) {
       _subrun =  ioman->event_id().subrun();
       _event =  ioman->event_id().event();
 
+      /*
+      std::cout << "_event: " << _event << std::endl;
+      std::cout << "_chosenMuEvent: " << _chosenMuEvent << std::endl;
+      std::cout << "_chosenMuEvent*100 + _chosenMuVtxid*10 + _chosenMuMuID: " << _chosenMuEvent*100 + _chosenMuVtxid*10 + _chosenMuMuID << std::endl;
+      std::cout << "_chosenPEvent: " << _chosenPEvent << std::endl;
+      std::cout << "_chosenPEvent*100 + _chosenPVtxid*10 + _chosenPProtID: " << _chosenPEvent*100 + _chosenPVtxid*10 + _chosenPProtID << std::endl;
+      */
       if (_run != _chosenMuRun && _run != _chosenPRun) continue;
       if (_subrun != _chosenMuSubrun && _subrun != _chosenPSubrun) continue;
       if (_event != (_chosenMuEvent*100 + _chosenMuVtxid*10 + _chosenMuMuID) && _event != (_chosenPEvent*100 + _chosenPVtxid*10 + _chosenPProtID)) continue;
@@ -285,6 +292,9 @@ int main( int nargs, char** argv) {
 	  double deltaX = protonVtx[iPlane][0] - muonVtx[iPlane][0];
 	  double deltaY = protonVtx[iPlane][1] - muonVtx[iPlane][1];
 
+	  std::cout << "deltaX: " << deltaX << std::endl;
+	  std::cout << "deltaY: " << deltaY << std::endl;
+	     
 	  /*
 	  std::cout << "protonVtx[iPlane][0] = " << protonVtx[iPlane][0] << std::endl;
 	  std::cout << "protonVtx[iPlane][1] = " << protonVtx[iPlane][1] << std::endl;
@@ -301,6 +311,7 @@ int main( int nargs, char** argv) {
 
 	  for (size_t icol = 0; icol < out_img_muon[iPlane].meta().cols(); icol++) {
 	    for(size_t irow = 0; irow < out_img_muon[iPlane].meta().rows(); irow++) {
+
 	      // Conditions
 	      // if tru, pixel row col for muon n proton
 	      // else if false, just muon
@@ -317,13 +328,16 @@ int main( int nargs, char** argv) {
 		
 		//if (out_img_proton[iPlane].pixel(irow+deltaY, icol+deltaX)>0) std::cout << "This passed" << std::endl;
 
-		if (out_img_muon[iPlane].pixel(irow, icol) > 11 || out_img_proton[iPlane].pixel(irow, icol) > 11)
-		  out_img_combined[iPlane].set_pixel(meta[iPlane].rows()-irow-1,icol,out_img_muon[iPlane].pixel(irow, icol) + out_img_proton[iPlane].pixel(irow + deltaY, icol + deltaX));
-		
+		if (out_img_muon[iPlane].pixel(irow, icol) > 11 || out_img_proton[iPlane].pixel(irow, icol) > 11) {
+		  // out_img_combined[iPlane].set_pixel(meta[iPlane].rows()-irow-1,icol,out_img_muon[iPlane].pixel(irow, icol) + out_img_proton[iPlane].pixel(irow + deltaY, icol + deltaX));
+		  out_img_combined[iPlane].set_pixel(irow,icol,out_img_muon[iPlane].pixel(irow, icol) + out_img_proton[iPlane].pixel(irow + deltaY, icol + deltaX));
+
+		}
 		//		if (out_img_combined[iPlane].pixel(irow, icol) <= 11) out_img_combined[iPlane].set_pixel(irow,icol,0);
 
 	      } else {
-		
+
+		// Removing dead wire zones on original isolated muon and proton
 		if (out_img_muon[iPlane].pixel(irow, icol) <= 11) out_img_muon[iPlane].set_pixel(irow,icol,0);
 		if (out_img_proton[iPlane].pixel(irow, icol) <= 11) out_img_proton[iPlane].set_pixel(irow,icol,0);
 

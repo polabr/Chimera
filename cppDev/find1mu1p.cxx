@@ -50,7 +50,7 @@ int main( int nargs, char** argv ) {
 
   inputTree->SetBranchAddress("run", &run);
 
-  std::cout << "set first branch address" << std::endl;
+  //  std::cout << "set first branch address" << std::endl;
 
   inputTree->SetBranchAddress("subrun", &subrun);
   inputTree->SetBranchAddress("event", &event);
@@ -81,7 +81,7 @@ int main( int nargs, char** argv ) {
   int _subrun;
   int _event;
   int _vtxid;
-  int muID;
+  int muID; //lepID
   int protID;
   float x;
   float y;
@@ -127,7 +127,7 @@ int main( int nargs, char** argv ) {
   _tree->Branch("_event", &_event, "_event/I");
   _tree->Branch("_vtxid", &_vtxid, "_vtxid/I");
   _tree->Branch("muID", &muID, "muID/I");
-  _tree->Branch("protID", &protID, "protID/F");
+  _tree->Branch("protID", &protID, "protID/I");
   _tree->Branch("x", &x, "x/F");
   _tree->Branch("y", &y, "y/F");
   _tree->Branch("z", &z, "z/F");
@@ -142,7 +142,7 @@ int main( int nargs, char** argv ) {
   _tree->Branch("chosenMuEvent", &chosenMuEvent, "chosenMuEvent/I");
   _tree->Branch("chosenMuVtxid", &chosenMuVtxid, "chosenMuVtxid/I");
   _tree->Branch("chosenMuMuID", &chosenMuMuID, "chosenMuMuID/I");
-  _tree->Branch("chosenMuProtID", &chosenMuProtID, "chosenMuProtID/F");
+  _tree->Branch("chosenMuProtID", &chosenMuProtID, "chosenMuProtID/I");
   _tree->Branch("chosenMuX", &chosenMuX, "chosenMuX/F");
   _tree->Branch("chosenMuY", &chosenMuY, "chosenMuY/F");
   _tree->Branch("chosenMuZ", &chosenMuZ, "chosenMuZ/F");
@@ -154,7 +154,7 @@ int main( int nargs, char** argv ) {
   _tree->Branch("chosenPEvent", &chosenPEvent, "chosenPEvent/I");
   _tree->Branch("chosenPVtxid", &chosenPVtxid, "chosenPVtxid/I");
   _tree->Branch("chosenPMuID", &chosenPMuID, "chosenPMuID/I");
-  _tree->Branch("chosenPProtID", &chosenPProtID, "chosenPProtID/F");
+  _tree->Branch("chosenPProtID", &chosenPProtID, "chosenPProtID/I");
   _tree->Branch("chosenPX", &chosenPX, "chosenPX/F");
   _tree->Branch("chosenPY", &chosenPY, "chosenPY/F");
   _tree->Branch("chosenPZ", &chosenPZ, "chosenPZ/F");
@@ -169,6 +169,7 @@ int main( int nargs, char** argv ) {
 
     //    if ( (PassSimpleCuts == 1) && (_cosmiLL > -3.0) ) {
     if ((PassSimpleCuts == 1) && (Good3DReco == 1)){
+      //if (PassSimpleCuts == 1) {
 
       passCutCount = passCutCount + 1;
 
@@ -178,7 +179,7 @@ int main( int nargs, char** argv ) {
       _event = event;
       _vtxid = vtxid;
       muID = Lepton_ID;
-      protID = Proton_ID;
+      protID = int(Proton_ID);
       x = Xreco;
       y = Yreco;
       z = Zreco;

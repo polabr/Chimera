@@ -61,7 +61,7 @@ int main( int nargs, char** argv ) {
     auto ev_img_muon = (larcv::EventImage2D*)iolarcv.get_data( larcv::kProductImage2D, "testMuon" );
     auto ev_img_proton = (larcv::EventImage2D*)iolarcv.get_data( larcv::kProductImage2D, "testProton" );
     auto ev_img_combined = (larcv::EventImage2D*)iolarcv.get_data( larcv::kProductImage2D, "testCombined" );
-
+        
     // out: if I am saving Image2Ds
     //auto evout_wire            = (larcv::EventImage2D*)outlarcv.get_data( larcv::kProductImage2D, "testout");
     

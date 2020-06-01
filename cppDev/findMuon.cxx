@@ -154,6 +154,7 @@ std::tuple<Int_t, Int_t, Int_t, Int_t, Int_t, Int_t,  Double_t, Double_t, Double
     // Check if the entries pass the cuts before getting the x values
     //    if ( (PassSimpleCuts == 1) && (_cosmiLL > -3.0) && ( i != j ) ) {
     if ( (PassSimpleCuts == 1) && (Good3DReco == 1) && ( i != j ) ) {
+    //    if ( (PassSimpleCuts == 1) && ( i != j ) ) {
 
       //      passCutCount = passCutCount + 1; 
       
@@ -188,7 +189,7 @@ std::tuple<Int_t, Int_t, Int_t, Int_t, Int_t, Int_t,  Double_t, Double_t, Double
 	chosenEvent = event;
 	chosenVtxid = vtxid;
 	chosenMuID = Lepton_ID;
-	chosenProtID = Proton_ID;
+	chosenProtID = int(Proton_ID);
 	
       }
 
