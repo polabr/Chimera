@@ -14,6 +14,8 @@
 #include "DataFormat/IOManager.h"
 #include "DataFormat/EventImage2D.h"
 #include "DataFormat/EventChStatus.h"
+#include "DataFormat/ImageMeta.h"
+
 
 /**
  * simple macro to read an Image2D and plot it in TH2D
@@ -86,6 +88,8 @@ int main( int nargs, char** argv ) {
       sprintf(histname_event,"hadc_combined_run%d_event%lu_plane%d",run,event,planeid);
       hadc_combined[planeid] = new TH2D(histname_event,"",meta.cols(), 0, meta.cols(), meta.rows(),0,meta.rows());
 
+      std::cout << meta.dump() << std::endl;
+      
       for(int row = 0; row<meta.rows(); row++){
         for(int col=0; col<meta.cols(); col++){
           float pixamp = img_muon.pixel( row, col );

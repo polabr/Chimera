@@ -200,6 +200,10 @@ int main( int nargs, char** argv) {
       std::cout << "Vtx Run: " << run << std::endl;
       std::cout << "Vtx Event: " << event << std::endl;
       */
+
+      // Found a match!
+      // Now, is it the muon or proton?
+      
       if (_run == _chosenMuRun && _subrun == _chosenMuSubrun && _event == ( _chosenMuEvent*100 + _chosenMuVtxid*10 + _chosenMuMuID) ) {
 	
 	//std::cout << "FOUND A MUON MATCH!!" << std::endl;
@@ -292,6 +296,11 @@ int main( int nargs, char** argv) {
 	  double deltaX = protonVtx[iPlane][0] - muonVtx[iPlane][0];
 	  double deltaY = protonVtx[iPlane][1] - muonVtx[iPlane][1];
 
+	  // Draw where we expect the vertex to be:
+	  out_img_muon[iPlane].set_pixel(muonVtx[iPlane][1],muonVtx[iPlane][0],4000);
+	  out_img_proton[iPlane].set_pixel(protonVtx[iPlane][1],protonVtx[iPlane][0],4000);
+	  out_img_combined[iPlane].set_pixel(muonVtx[iPlane][1],muonVtx[iPlane][0],4000);
+	  
 	  std::cout << "deltaX: " << deltaX << std::endl;
 	  std::cout << "deltaY: " << deltaY << std::endl;
 	     
@@ -309,6 +318,7 @@ int main( int nargs, char** argv) {
 	  std::cout << deltaX << " " << deltaY << std::endl;
 	  */
 
+	  // "For a given pixel:"
 	  for (size_t icol = 0; icol < out_img_muon[iPlane].meta().cols(); icol++) {
 	    for(size_t irow = 0; irow < out_img_muon[iPlane].meta().rows(); irow++) {
 
@@ -316,20 +326,25 @@ int main( int nargs, char** argv) {
 	      // if tru, pixel row col for muon n proton
 	      // else if false, just muon
 
+	      // "If pixel is within bounds:"
 	      if ( ( icol+deltaX >= 0 ) 
 		   && ( icol+deltaX < meta[iPlane].cols() )
 		   && ( irow+deltaY >= 0 )
 		   && ( irow+deltaY < meta[iPlane].rows() ) 
 		   ) {
 		
-		// Removing dead wire zones on original isolated muon and proton
+		// Remove dead wire zones on original isolated muon and proton
 		if (out_img_muon[iPlane].pixel(irow, icol) <= 11) out_img_muon[iPlane].set_pixel(irow,icol,0);
 		if (out_img_proton[iPlane].pixel(irow, icol) <= 11) out_img_proton[iPlane].set_pixel(irow,icol,0);
 		
 		//if (out_img_proton[iPlane].pixel(irow+deltaY, icol+deltaX)>0) std::cout << "This passed" << std::endl;
 
 		if (out_img_muon[iPlane].pixel(irow, icol) > 11 || out_img_proton[iPlane].pixel(irow, icol) > 11) {
-		  // out_img_combined[iPlane].set_pixel(meta[iPlane].rows()-irow-1,icol,out_img_muon[iPlane].pixel(irow, icol) + out_img_proton[iPlane].pixel(irow + deltaY, icol + deltaX));
+
+		  // Flip image upside down
+		  //out_img_combined[iPlane].set_pixel(meta[iPlane].rows()-irow-1,icol,out_img_muon[iPlane].pixel(irow, icol) + out_img_proton[iPlane].pixel(irow + deltaY, icol + deltaX));
+
+		  // Right side up image
 		  out_img_combined[iPlane].set_pixel(irow,icol,out_img_muon[iPlane].pixel(irow, icol) + out_img_proton[iPlane].pixel(irow + deltaY, icol + deltaX));
 
 		}
@@ -337,7 +352,7 @@ int main( int nargs, char** argv) {
 
 	      } else {
 
-		// Removing dead wire zones on original isolated muon and proton
+		// Remove dead wire zones on original isolated muon and proton
 		if (out_img_muon[iPlane].pixel(irow, icol) <= 11) out_img_muon[iPlane].set_pixel(irow,icol,0);
 		if (out_img_proton[iPlane].pixel(irow, icol) <= 11) out_img_proton[iPlane].set_pixel(irow,icol,0);
 
