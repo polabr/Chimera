@@ -118,8 +118,8 @@ int main( int nargs, char** argv) {
   ULong_t _event;  
   
   // First loop thru all llhd entries, which contain info for both muon & proton
-  for (Int_t i = 0; i < llhdEntries; i++) {
-
+  //  for (Int_t i = 0; i < llhdEntries; i++) {
+  for (Int_t i = 0; i < 4; i++) {
     vtxVector->clear();
 
     llhdOutputTree->GetEntry(i);
@@ -163,6 +163,10 @@ int main( int nargs, char** argv) {
     double protonPt_plane2_y;
     */    
 
+    larcv::EventImage2D* ev_img_out = (larcv::EventImage2D*)out_iom->get_data( larcv::kProductImage2D, "testCombined" );
+    larcv::EventImage2D* ev_img_out_muon = (larcv::EventImage2D*)out_iom->get_data( larcv::kProductImage2D, "testMuon" );
+    larcv::EventImage2D* ev_img_out_proton = (larcv::EventImage2D*)out_iom->get_data( larcv::kProductImage2D, "testProton" );
+    
     // Find the corresponding track image2ds for the current muon and proton
     for (Int_t j = 0; j < image2dEntries; j++) {
       
@@ -174,9 +178,6 @@ int main( int nargs, char** argv) {
 
       // Include this line every time using IOManager, after getting the entry
       const auto ev_img = (larcv::EventImage2D*)ioman->get_data( larcv::kProductImage2D, "test" );
-      larcv::EventImage2D* ev_img_out = (larcv::EventImage2D*)out_iom->get_data( larcv::kProductImage2D, "testCombined" );
-      larcv::EventImage2D* ev_img_out_muon = (larcv::EventImage2D*)out_iom->get_data( larcv::kProductImage2D, "testMuon" );
-      larcv::EventImage2D* ev_img_out_proton = (larcv::EventImage2D*)out_iom->get_data( larcv::kProductImage2D, "testProton" );
 
       _run =  ioman->event_id().run();
       _subrun =  ioman->event_id().subrun();
@@ -284,8 +285,8 @@ int main( int nargs, char** argv) {
 	
 	for (size_t iPlane= 0; iPlane < 3; iPlane++ ) {
 	  meta[iPlane] = out_img_muon[iPlane].meta();
-	  out_img_combined[iPlane] = out_img_muon[iPlane];
-	  out_img_combined[iPlane].paint(0.0);
+	  //	  out_img_combined[iPlane] = out_img_muon[iPlane];
+	  //	  out_img_combined[iPlane].paint(0.0);
 	  
 	  //	  double deltaX = muonVtx[iPlane][0] - protonVtx[iPlane][0];
 	  //double deltaY = muonVtx[iPlane][1] - protonVtx[iPlane][1];
@@ -293,17 +294,29 @@ int main( int nargs, char** argv) {
 	  // double deltaX = 1043-697;
 	  //double deltaY = 758-600;
 
-	  double deltaX = protonVtx[iPlane][0] - muonVtx[iPlane][0];
-	  double deltaY = protonVtx[iPlane][1] - muonVtx[iPlane][1];
+	  double deltaX_d = protonVtx[iPlane][0] - muonVtx[iPlane][0];
+	  double deltaY_d = protonVtx[iPlane][1] - muonVtx[iPlane][1];
 
+	  int deltaX = (int) deltaX_d;
+	  int deltaY = (int) deltaY_d;
+
+	  /*
 	  // Draw where we expect the vertex to be:
 	  out_img_muon[iPlane].set_pixel(muonVtx[iPlane][1],muonVtx[iPlane][0],4000);
 	  out_img_proton[iPlane].set_pixel(protonVtx[iPlane][1],protonVtx[iPlane][0],4000);
 	  out_img_combined[iPlane].set_pixel(muonVtx[iPlane][1],muonVtx[iPlane][0],4000);
+	  */
 	  
+	  /*
 	  std::cout << "deltaX: " << deltaX << std::endl;
 	  std::cout << "deltaY: " << deltaY << std::endl;
-	     
+
+	  std::cout << "Here are the meta dumps: muon, proton, combined" << std::endl;
+	  std::cout << out_img_muon[iPlane].meta().dump() << std::endl;
+	  std::cout << out_img_proton[iPlane].meta().dump() << std::endl;
+	  std::cout << out_img_combined[iPlane].meta().dump() << std::endl;
+	  */
+	  
 	  /*
 	  std::cout << "protonVtx[iPlane][0] = " << protonVtx[iPlane][0] << std::endl;
 	  std::cout << "protonVtx[iPlane][1] = " << protonVtx[iPlane][1] << std::endl;
@@ -318,9 +331,22 @@ int main( int nargs, char** argv) {
 	  std::cout << deltaX << " " << deltaY << std::endl;
 	  */
 
+	  // Loop for zeroing out dead regions in the muon, proton images
+	  for (int icol = 0; icol < out_img_proton[iPlane].meta().cols(); icol++) {
+	    for(int irow = 0; irow < out_img_proton[iPlane].meta().rows(); irow++) {
+
+	      if (out_img_muon[iPlane].pixel(irow, icol) <= 11) out_img_muon[iPlane].set_pixel(irow,icol,0);
+	      if (out_img_proton[iPlane].pixel(irow, icol) <= 11) out_img_proton[iPlane].set_pixel(irow,icol,0);
+	      
+	    }
+	  }
+
+	  out_img_combined[iPlane] = out_img_muon[iPlane];
+	  
+	  // Loop for copying pixels to create the chimera
 	  // "For a given pixel:"
-	  for (size_t icol = 0; icol < out_img_muon[iPlane].meta().cols(); icol++) {
-	    for(size_t irow = 0; irow < out_img_muon[iPlane].meta().rows(); irow++) {
+	  for (int icol = 0; icol < out_img_proton[iPlane].meta().cols(); icol++) {
+	    for(int irow = 0; irow < out_img_proton[iPlane].meta().rows(); irow++) {
 
 	      // Conditions
 	      // if tru, pixel row col for muon n proton
@@ -332,38 +358,43 @@ int main( int nargs, char** argv) {
 		   && ( irow+deltaY >= 0 )
 		   && ( irow+deltaY < meta[iPlane].rows() ) 
 		   ) {
-		
-		// Remove dead wire zones on original isolated muon and proton
-		if (out_img_muon[iPlane].pixel(irow, icol) <= 11) out_img_muon[iPlane].set_pixel(irow,icol,0);
-		if (out_img_proton[iPlane].pixel(irow, icol) <= 11) out_img_proton[iPlane].set_pixel(irow,icol,0);
-		
+				
 		//if (out_img_proton[iPlane].pixel(irow+deltaY, icol+deltaX)>0) std::cout << "This passed" << std::endl;
 
-		if (out_img_muon[iPlane].pixel(irow, icol) > 11 || out_img_proton[iPlane].pixel(irow, icol) > 11) {
+		//		if (out_img_muon[iPlane].pixel(irow, icol) > 11 || out_img_proton[iPlane].pixel(irow, icol) > 11) {
+		if (out_img_proton[iPlane].pixel(irow, icol) > 11) {
 
 		  // Flip image upside down
 		  //out_img_combined[iPlane].set_pixel(meta[iPlane].rows()-irow-1,icol,out_img_muon[iPlane].pixel(irow, icol) + out_img_proton[iPlane].pixel(irow + deltaY, icol + deltaX));
 
 		  // Right side up image
-		  out_img_combined[iPlane].set_pixel(irow,icol,out_img_muon[iPlane].pixel(irow, icol) + out_img_proton[iPlane].pixel(irow + deltaY, icol + deltaX));
-
+		  float pixelValue = out_img_combined[iPlane].pixel(irow+deltaY, icol+deltaX);
+		  pixelValue+=out_img_proton[iPlane].pixel(irow, icol);
+		  //		  out_img_combined[iPlane].set_pixel(irow,icol,out_img_muon[iPlane].pixel(irow, icol) + out_img_proton[iPlane].pixel(irow + deltaY, icol + deltaX));
+		  out_img_combined[iPlane].set_pixel(irow - deltaY, icol - deltaX, pixelValue);
+		  
 		}
 		//		if (out_img_combined[iPlane].pixel(irow, icol) <= 11) out_img_combined[iPlane].set_pixel(irow,icol,0);
 
-	      } else {
+	      }
+
+	      /*else {
 
 		// Remove dead wire zones on original isolated muon and proton
 		if (out_img_muon[iPlane].pixel(irow, icol) <= 11) out_img_muon[iPlane].set_pixel(irow,icol,0);
 		if (out_img_proton[iPlane].pixel(irow, icol) <= 11) out_img_proton[iPlane].set_pixel(irow,icol,0);
 
-		out_img_combined[iPlane].set_pixel(irow,icol,out_img_muon[iPlane].pixel(irow, icol));
+		//		out_img_combined[iPlane].set_pixel(irow,icol,out_img_muon[iPlane].pixel(irow, icol));
 		
 	      }
-	      
+	      */
 	    }
 
+	    // row col loop
+	    
 	  }
 
+	  
 	
 	  ev_img_out->Emplace(std::move(out_img_combined[iPlane]));
 	  ev_img_out_muon->Emplace(std::move(out_img_muon[iPlane]));
