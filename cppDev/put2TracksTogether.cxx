@@ -354,10 +354,10 @@ int main( int nargs, char** argv) {
 	      if (out_img_proton[iPlane].pixel(irow, icol) > 11) {
 	      
 	      // "If pixel is within bounds:"
-		if ( ( icol+deltaX >= 0 ) 
-		     && ( icol+deltaX < meta[iPlane].cols() )
-		     && ( irow+deltaY >= 0 )
-		     && ( irow+deltaY < meta[iPlane].rows() ) 
+		if ( ( icol - deltaX >= 0 ) 
+		     && ( icol - deltaX < meta[iPlane].cols() )
+		     && ( irow - deltaY >= 0 )
+		     && ( irow - deltaY < meta[iPlane].rows() ) 
 		     ) {
 				
 		//if (out_img_proton[iPlane].pixel(irow+deltaY, icol+deltaX)>0) std::cout << "This passed" << std::endl;
@@ -369,7 +369,7 @@ int main( int nargs, char** argv) {
 		  //out_img_combined[iPlane].set_pixel(meta[iPlane].rows()-irow-1,icol,out_img_muon[iPlane].pixel(irow, icol) + out_img_proton[iPlane].pixel(irow + deltaY, icol + deltaX));
 
 		  // Right side up image
-		  float pixelValue = out_img_combined[iPlane].pixel(irow-deltaY, icol-deltaX);
+		  float pixelValue = out_img_combined[iPlane].pixel(irow - deltaY, icol - deltaX);
 		  pixelValue+=out_img_proton[iPlane].pixel(irow, icol);
 		  //		  out_img_combined[iPlane].set_pixel(irow,icol,out_img_muon[iPlane].pixel(irow, icol) + out_img_proton[iPlane].pixel(irow + deltaY, icol + deltaX));
 		  out_img_combined[iPlane].set_pixel(irow - deltaY, icol - deltaX, pixelValue);
