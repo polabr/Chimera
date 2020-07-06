@@ -340,34 +340,36 @@ int main( int nargs, char** argv) {
 	 
 	  // Copy the muon event with removed dead regions to become the combined event
 	  out_img_combined[iPlane] = out_img_muon[iPlane];
-
+	  /*
 	  // DEBUG: Draw where we expect the vertex to be:
 	  out_img_muon[iPlane].set_pixel(muonVtx[iPlane][1],muonVtx[iPlane][0],4000);
 	  out_img_proton[iPlane].set_pixel(protonVtx[iPlane][1],protonVtx[iPlane][0],4000);
 	  out_img_combined[iPlane].set_pixel(muonVtx[iPlane][1],muonVtx[iPlane][0],4000);
-	  
+	  */
 	  // Loop for copying pixels to create the chimera
 	  // "For a given proton pixel:"
 	  for (int icol = 0; icol < out_img_proton[iPlane].meta().cols(); icol++) {
 	    for(int irow = 0; irow < out_img_proton[iPlane].meta().rows(); irow++) {
 
+	      if (out_img_proton[iPlane].pixel(irow, icol) > 11) {
+	      
 	      // "If pixel is within bounds:"
-	      if ( ( icol+deltaX >= 0 ) 
-		   && ( icol+deltaX < meta[iPlane].cols() )
-		   && ( irow+deltaY >= 0 )
-		   && ( irow+deltaY < meta[iPlane].rows() ) 
-		   ) {
+		if ( ( icol+deltaX >= 0 ) 
+		     && ( icol+deltaX < meta[iPlane].cols() )
+		     && ( irow+deltaY >= 0 )
+		     && ( irow+deltaY < meta[iPlane].rows() ) 
+		     ) {
 				
 		//if (out_img_proton[iPlane].pixel(irow+deltaY, icol+deltaX)>0) std::cout << "This passed" << std::endl;
 
 		//		if (out_img_muon[iPlane].pixel(irow, icol) > 11 || out_img_proton[iPlane].pixel(irow, icol) > 11) {
-		if (out_img_proton[iPlane].pixel(irow, icol) > 11) {
+
 
 		  // Flip image upside down
 		  //out_img_combined[iPlane].set_pixel(meta[iPlane].rows()-irow-1,icol,out_img_muon[iPlane].pixel(irow, icol) + out_img_proton[iPlane].pixel(irow + deltaY, icol + deltaX));
 
 		  // Right side up image
-		  float pixelValue = out_img_combined[iPlane].pixel(irow+deltaY, icol+deltaX);
+		  float pixelValue = out_img_combined[iPlane].pixel(irow-deltaY, icol-deltaX);
 		  pixelValue+=out_img_proton[iPlane].pixel(irow, icol);
 		  //		  out_img_combined[iPlane].set_pixel(irow,icol,out_img_muon[iPlane].pixel(irow, icol) + out_img_proton[iPlane].pixel(irow + deltaY, icol + deltaX));
 		  out_img_combined[iPlane].set_pixel(irow - deltaY, icol - deltaX, pixelValue);
