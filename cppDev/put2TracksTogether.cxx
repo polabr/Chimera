@@ -299,13 +299,6 @@ int main( int nargs, char** argv) {
 
 	  int deltaX = (int) deltaX_d;
 	  int deltaY = (int) deltaY_d;
-
-	  /*
-	  // Draw where we expect the vertex to be:
-	  out_img_muon[iPlane].set_pixel(muonVtx[iPlane][1],muonVtx[iPlane][0],4000);
-	  out_img_proton[iPlane].set_pixel(protonVtx[iPlane][1],protonVtx[iPlane][0],4000);
-	  out_img_combined[iPlane].set_pixel(muonVtx[iPlane][1],muonVtx[iPlane][0],4000);
-	  */
 	  
 	  /*
 	  std::cout << "deltaX: " << deltaX << std::endl;
@@ -337,20 +330,26 @@ int main( int nargs, char** argv) {
 
 	      if (out_img_muon[iPlane].pixel(irow, icol) <= 11) out_img_muon[iPlane].set_pixel(irow,icol,0);
 	      if (out_img_proton[iPlane].pixel(irow, icol) <= 11) out_img_proton[iPlane].set_pixel(irow,icol,0);
+
+	      // DEBUG: set muon, proton tracks to different colors
+	      if (out_img_muon[iPlane].pixel(irow, icol) > 11) out_img_muon[iPlane].set_pixel(irow,icol,300);
+	      if (out_img_proton[iPlane].pixel(irow, icol) > 11) out_img_proton[iPlane].set_pixel(irow,icol,600);
 	      
 	    }
 	  }
-
+	 
+	  // Copy the muon event with removed dead regions to become the combined event
 	  out_img_combined[iPlane] = out_img_muon[iPlane];
+
+	  // DEBUG: Draw where we expect the vertex to be:
+	  out_img_muon[iPlane].set_pixel(muonVtx[iPlane][1],muonVtx[iPlane][0],4000);
+	  out_img_proton[iPlane].set_pixel(protonVtx[iPlane][1],protonVtx[iPlane][0],4000);
+	  out_img_combined[iPlane].set_pixel(muonVtx[iPlane][1],muonVtx[iPlane][0],4000);
 	  
 	  // Loop for copying pixels to create the chimera
-	  // "For a given pixel:"
+	  // "For a given proton pixel:"
 	  for (int icol = 0; icol < out_img_proton[iPlane].meta().cols(); icol++) {
 	    for(int irow = 0; irow < out_img_proton[iPlane].meta().rows(); irow++) {
-
-	      // Conditions
-	      // if tru, pixel row col for muon n proton
-	      // else if false, just muon
 
 	      // "If pixel is within bounds:"
 	      if ( ( icol+deltaX >= 0 ) 
